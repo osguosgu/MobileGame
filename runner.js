@@ -3,8 +3,9 @@ var game = new Phaser.Game(800, 1000, Phaser.AUTO, 'phaser-example', { preload: 
 
 var background;
 var foreground;
-
+var ground;
 var player;
+var object;
 
 function preload () {
  
@@ -26,18 +27,16 @@ function create () {
 
   	this.game.stage.backgroundColor = 'aaa';
 
-  	//  The platforms group contains the ground and the 2 ledges we can jump on
     platforms = game.add.group();
- 
-    //  We will enable physics for any object that is created in this group
+
     platforms.enableBody = true;
 
-  	var ground = platforms.create(0, game.world.height - (200+30), 'ground');
-  	ground.body.immovable = true;
-  	ground.scale.setTo(8, 1);
+  	ground = game.add.tileSprite(0, game.world.height - (200+30), 800, 30, 'ground');
+	ground.autoScroll(-300, 0);
 
-  	var object = platforms.create(600, game.world.height - (200+100))
-  	object.body.immovable = true;
+	game.physics.arcade.enable(ground);
+  	ground.body.immovable = true;
+  	ground.allowGravity = false;
 
   	player = game.add.sprite(100, game.world.height - 500, 'dude');
 
@@ -45,24 +44,47 @@ function create () {
 
   	player.body.bounce.y = 0.2;
     player.body.gravity.y = 600;
-    player.body.collideWorldBounds = true;
+    player.body.collideWorldBounds = false;
 
     player.animations.add('jump', [0, 1, 2, 3, 4, 5, 6], 10, false);
 
     var button = game.add.button(0, 800, 'ollieButton', doOllie, this, 0, 0, 1);
 
 
-    this.objectGenerator = game.time.events.loop(Phaser.Timer.SECOND * 1.25, generateObjects, this);
-    this.pipeGenerator.timer.start();
+    this.objectGenerator = game.time.events.loop(Phaser.Timer.SECOND * 2, generateObjects, this);
+    this.objectGenerator.timer.start();
 }
 
 function update () {
 
 	game.physics.arcade.collide(player, platforms);
+	game.physics.arcade.collide(player, ground);
+	game.physics.arcade.collide(platforms, ground, objectToMove, null, this);
+
+	if (player.x < -200){
+		player.x = 100;
+		player.y = game.world.height - 500;
+		player.body.velocity.x = 0;
+
+	}
 }
 
 
 function doOllie () {
 	player.body.velocity.y = -400;
 	player.animations.play('jump');
+}
+
+function generateObjects () {
+
+	object = platforms.create(790, game.world.height - (200+80), 'object')
+
+  	game.physics.arcade.enable(object);
+  	object.body.gravity.y = 1000;
+
+}
+
+function objectToMove () {
+	object.body.velocity.x = -300;
+
 }
