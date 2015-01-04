@@ -18,6 +18,8 @@ function preload () {
 }
 
 function create () {
+
+	game.stage.scaleMode = 2;
 	game.physics.startSystem(Phaser.Physics.ARCADE);
 
    	background = game.add.tileSprite(0, 0, 800, game.cache.getImage('background').height, 'background');
@@ -53,6 +55,10 @@ function create () {
 
     this.objectGenerator = game.time.events.loop(Phaser.Timer.SECOND * 2, generateObjects, this);
     this.objectGenerator.timer.start();
+
+
+  	game.scale.setMaximum();
+    game.scale.setScreenSize(true);
 }
 
 function update () {
